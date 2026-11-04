@@ -1,77 +1,91 @@
-# SEG3502 — Laboratoire 8 — Code de départ
+# SEG 3502 — Lab 8 : Services Web GraphQL
 
-Ce dossier contient les deux parties nécessaires au laboratoire 8 :
+Application pédagogique de gestion des employés, composée d'un **client Angular/TypeScript**, d'une **API GraphQL Spring Boot/Kotlin** et d'une base de données **MongoDB**. Le client permet d'ajouter un employé et d'afficher la liste des employés enregistrés.
 
-- `client/` : application Angular Employee déjà configurée pour communiquer avec GraphQL;
-- `server/` : application Spring Boot/Kotlin + MongoDB à compléter.
+## Structure
 
-Le code source fourni correspond au code de départ du laboratoire. La solution du livrable n'est pas incluse.
+```text
+client/   Application Angular et Apollo GraphQL
+server/   API GraphQL Spring Boot / Kotlin et persistance MongoDB
+```
+
+Les fichiers complétés pour le laboratoire sont :
+
+- `server/src/main/resources/graphql/employee.graphqls` : types, requête `employees` et mutation `newEmployee`.
+- `server/src/main/kotlin/seg3x02/employeeGql/resolvers/EmployeesResolver.kt` : résolveurs de la requête et de la mutation.
+
+## Prérequis
+
+- JDK 21 (`java -version`)
+- Node.js et npm compatibles avec Angular 18
+- Docker Desktop en cours d'exécution
 
 ## 1. Démarrer MongoDB
 
-Le serveur utilise MongoDB sur le port `27017`.
+Dans un terminal :
 
-Exemple avec Docker :
-
-```bash
+```powershell
 docker run -d -p 27017:27017 --name mongodb mongo
 ```
 
-## 2. Démarrer le serveur GraphQL
+Si le conteneur `mongodb` existe déjà, mais est arrêté :
 
-Le projet serveur utilise Java 21.
+```powershell
+docker start mongodb
+```
+
+Vérifier avec `docker ps` que MongoDB écoute sur le port **27017**. La base utilisée est `employees-mongo`.
+
+## 2. Lancer le serveur GraphQL
+
+Depuis la racine du projet, sous Windows :
+
+```powershell
+cd server
+.\gradlew.bat bootRun
+```
+
+Sous macOS ou Linux :
 
 ```bash
 cd server
 ./gradlew bootRun
 ```
 
-Sous Windows :
+Garder le terminal ouvert. L'API est disponible à **http://localhost:9000/graphql**. L'interface GraphiQL est configurée à **http://localhost:9000/graphiql** (son chargement peut dépendre des ressources Web externes).
 
-```text
-gradlew.bat bootRun
-```
+## 3. Lancer le client Angular
 
-Le serveur démarre sur le port `9000`.
+Dans un **autre terminal**, depuis la racine du projet :
 
-GraphiQL :
-
-```text
-http://localhost:9000/graphiql
-```
-
-Point de terminaison GraphQL :
-
-```text
-http://localhost:9000/graphql
-```
-
-## 3. Démarrer le client Angular
-
-Dans un deuxième terminal :
-
-```bash
+```powershell
 cd client
-npm install
-npm start
+npm ci
+npx ng serve
 ```
 
-Puis ouvrez :
+Ouvrir **http://localhost:4200**.
 
-```text
-http://localhost:4200
+Le client utilise **Angular 18** et **Apollo Angular 7.0.2**, compatibles entre eux. Le fichier `package-lock.json` est synchronisé avec cette dépendance.
+
+## 4. Tester l'application
+
+1. Ouvrir le formulaire **Add Employee**.
+2. Saisir un nom, une date de naissance, une ville, un salaire, un genre et un courriel fictifs, puis cliquer sur **Submit**.
+3. Vérifier que l'employé apparaît dans **Employee List**.
+4. Actualiser la page et vérifier que l'employé est toujours affiché.
+
+Pour tester directement la requête GraphQL dans un PowerShell distinct :
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:9000/graphql" -Method Post -ContentType "application/json" -Body '{"query":"{ employees { id name city email } }"}' | ConvertTo-Json -Depth 10
 ```
 
-## Travail demandé
+Si la base est vide, la requête retourne `{"data":{"employees":[]}}`.
 
-Le client Angular est déjà fourni et contient les opérations GraphQL dont il a besoin.
+## Fonctionnalités
 
-Dans le serveur, complétez uniquement l'implémentation nécessaire pour que ce client fonctionne,
-notamment :
+- **Query `employees`** : récupérer les employés enregistrés.
+- **Mutation `newEmployee`** : ajouter un employé dans MongoDB et retourner l'enregistrement créé.
 
-- `src/main/resources/graphql/employee.graphqls`
-- `src/main/kotlin/seg3x02/employeeGql/resolvers/EmployeesResolver.kt`
-
-Suivez les consignes du laboratoire 8 pour définir le schéma GraphQL et les résolveurs nécessaires.
-
-Aucun accès à GitHub Classroom n'est requis pour utiliser ce code de départ.
+> La configuration de sécurité de ce laboratoire est destinée uniquement au développement local, et non à un déploiement en production.
