@@ -83,6 +83,15 @@ Invoke-RestMethod -Uri "http://localhost:9000/graphql" -Method Post -ContentType
 
 Si la base est vide, la requête retourne `{"data":{"employees":[]}}`.
 
+## 5. Tests du serveur
+
+```bash
+cd server
+./gradlew test        # Windows : .\gradlew.bat test
+```
+
+`EmployeesResolverTests` (`@GraphQlTest` + `GraphQlTester`, dépôt simulé, MongoDB non requis) vérifie la requête `employees`, la mutation `newEmployee`, les champs facultatifs et le rejet d'un champ obligatoire manquant.
+
 ## Fonctionnalités
 
 - **Query `employees`** : récupérer les employés enregistrés.
