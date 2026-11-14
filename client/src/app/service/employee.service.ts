@@ -23,8 +23,8 @@ mutation addEmployee($name: String!,
   $dateOfBirth: String!,
   $city: String!,
   $salary: Float!,
-  $gender: String!,
-  $email: String!) {
+  $gender: String,
+  $email: String) {
   newEmployee(createEmployeeInput: {name: $name, dateOfBirth: $dateOfBirth, city: $city, salary: $salary, gender: $gender, email: $email}) {
     id
     name
